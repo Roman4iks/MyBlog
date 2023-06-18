@@ -1,6 +1,6 @@
-import UserModel from "../models/User.js";
-import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
+import UserModel from '../models/User.js';
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 
 export const register = async (req, res) => {
   try {
@@ -21,10 +21,10 @@ export const register = async (req, res) => {
       {
         _id: user._id,
       },
-      "Secret 1",
+      process.env.SECRET,
       {
-        expiresIn: "30d",
-      }
+        expiresIn: '30d',
+      },
     );
 
     const { passwordHash, ...userData } = user._doc;
@@ -36,7 +36,7 @@ export const register = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: "ERROR" });
+    res.status(500).json({ status: 'ERROR' });
   }
 };
 
@@ -46,17 +46,14 @@ export const login = async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
+        message: 'User not found',
       });
     }
 
-    const isValidPass = await bcrypt.compare(
-      req.body.password,
-      user._doc.passwordHash
-    );
+    const isValidPass = await bcrypt.compare(req.body.password, user._doc.passwordHash);
     if (!isValidPass) {
       return res.status(404).json({
-        message: "Password incorrect",
+        message: 'Password incorrect',
       });
     }
 
@@ -64,8 +61,8 @@ export const login = async (req, res) => {
       {
         _id: user._id,
       },
-      "Secret 1",
-      { expiresIn: "30d" }
+      process.env.SECRET,
+      { expiresIn: '30d' },
     );
 
     const { passwordHash, ...userData } = user._doc;
@@ -76,7 +73,7 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(505).json({ message: "ServerError" });
+    res.status(505).json({ message: 'ServerError' });
   }
 };
 
@@ -85,13 +82,13 @@ export const getMe = async (req, res) => {
     const user = await UserModel.findById(req.userId);
     if (!user) {
       return res.status(404).json({
-        message: "User not found",
+        message: 'User not found',
       });
     }
     const { passwordHash, ...userData } = user._doc;
     res.json(userData);
   } catch (error) {
-    res.status(505).json({ message: "Server Error" });
+    res.status(505).json({ message: 'Server Error' });
     console.log(error);
   }
 };
