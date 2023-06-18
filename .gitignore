@@ -6,19 +6,19 @@ user/node_modules/
 /coverage
 
 # production
-./user/build
+user/build
+server/uploads
 
 user/.idea
 
-./server/npm-debug.log*
-./server/yarn-debug.log*
-./server/yarn-error.log*
-./server/.eslintrc.js
-./server/.vscode/settings.json
+server/npm-debug.log*
+server/yarn-debug.log*
+server/yarn-error.log*
+server/.eslintrc.js
+server/.vscode/settings.json
 
-./user/npm-debug.log*
-./user/yarn-debug.log*
-./user/yarn-error.log*
-./user/.eslintrc.js
-./user/.vscode/settings.json
-server/uploads
+user/npm-debug.log*
+user/yarn-debug.log*
+user/yarn-error.log*
+user/.eslintrc.js
+user/.vscode/settings.json
