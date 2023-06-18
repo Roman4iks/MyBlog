@@ -1,0 +1,23 @@
+# dependencies
+server/node_modules
+user/node_modules/
+
+# testing
+/coverage
+
+# production
+./user/build
+
+user/.idea
+
+./server/npm-debug.log*
+./server/yarn-debug.log*
+./server/yarn-error.log*
+./server/.eslintrc.js
+./server/.vscode/settings.json
+
+./user/npm-debug.log*
+./user/yarn-debug.log*
+./user/yarn-error.log*
+./user/.eslintrc.js
+./user/.vscode/settings.json
