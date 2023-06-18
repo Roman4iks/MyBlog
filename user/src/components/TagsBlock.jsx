@@ -18,7 +18,7 @@ export const TagsBlock = ({ items, isLoading = true, onChangeTag }) => {
         {(isLoading ? [...Array(5)] : items).map((name, i) => (
           <Button
             key={i}
-            style={{ textDecoration: 'none', color: 'black' }}
+            style={{ textDecoration: 'none', color: 'black', display: 'block' }}
             onClick={() => onChangeTag(name)}
           >
             <ListItem disablePadding>
