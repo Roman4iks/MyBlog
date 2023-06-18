@@ -98,6 +98,7 @@ export const create = async (req, res) => {
       imageUrl: req.body.imageUrl,
       tags: req.body.tags,
       user: req.userId,
+      comments: [],
     });
     const post = await doc.save();
 

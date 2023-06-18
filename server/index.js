@@ -2,8 +2,13 @@ import 'dotenv/config';
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
-import { loginValidation, registerValidation, postCreateValidation } from './validations/index.js';
-import { PostController, UserController } from './controllers/index.js';
+import {
+  loginValidation,
+  registerValidation,
+  postCreateValidation,
+  commentValidation,
+} from './validations/index.js';
+import { PostController, UserController, CommentController } from './controllers/index.js';
 import { handleValidErrors, checkAuth } from './utils/index.js';
 import cors from 'cors';
 
@@ -47,6 +52,16 @@ app.get('/auth/me', checkAuth, UserController.getMe);
 app.get('/posts', PostController.getAll);
 app.get('/posts/tags', PostController.getLastTags);
 app.get('/posts/:id', PostController.getOne);
+
+app.get('/posts/:id/comment', CommentController.get);
+app.post('/posts/:id/comment', checkAuth, commentValidation, CommentController.create);
+app.patch(
+  '/posts/:postId/comment/:commentId',
+  checkAuth,
+  commentValidation,
+  CommentController.update,
+);
+app.delete('/posts/:postId/comment/:commentId', checkAuth, CommentController.remove);
 app.post('/posts', checkAuth, postCreateValidation, PostController.create);
 app.delete('/posts/:id', checkAuth, PostController.postDelete);
 app.patch('/posts/:id', checkAuth, postCreateValidation, PostController.update);
