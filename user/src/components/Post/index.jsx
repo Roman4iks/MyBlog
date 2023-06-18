@@ -8,9 +8,9 @@ import CommentIcon from '@mui/icons-material/ChatBubbleOutlineOutlined';
 import styles from './Post.module.scss';
 import { UserInfo } from '../UserInfo';
 import { PostSkeleton } from './Skeleton';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
-import { fetchDeletePost } from '../../redux/slices/postsSlice';
+import { fetchDeletePost, setTag } from '../../redux/slices/postsSlice';
 import { Button } from '@mui/material';
 
 export const Post = ({
@@ -29,9 +29,16 @@ export const Post = ({
   onChangeTag,
 }) => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const onClickRemove = () => {
     dispatch(fetchDeletePost(id));
   };
+
+  const handleTagChange = value => {
+    dispatch(setTag(value));
+    navigate(`/tags/${value}`);
+  };
+
   if (isLoading) {
     return <PostSkeleton />;
   }
@@ -68,7 +75,9 @@ export const Post = ({
             <ul className={styles.tags}>
               {tags.map(name => (
                 <li key={name}>
-                  <Button onClick={() => onChangeTag(name)}>#{name}</Button>
+                  <Link to={`/tags/${name}`}>
+                    <Button onClick={() => handleTagChange(name)}>#{name}</Button>
+                  </Link>
                 </li>
               ))}
             </ul>

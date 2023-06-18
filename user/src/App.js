@@ -11,7 +11,9 @@ function App() {
   const dispatch = useDispatch();
 
   useEffect(() => {
-    dispatch(fetchAuthMe());
+    if (window.localStorage.getItem('token')) {
+      dispatch(fetchAuthMe());
+    }
   }, [dispatch]);
 
   return (
