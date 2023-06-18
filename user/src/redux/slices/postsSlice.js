@@ -58,6 +58,9 @@ const postSlice = createSlice({
     setTag: (state, action) => {
       state.filter.tag = action.payload;
     },
+    setPost: (state, action) => {
+      state.post.item = action.payload;
+    },
   },
   extraReducers: {
     [fetchPosts.pending]: state => {

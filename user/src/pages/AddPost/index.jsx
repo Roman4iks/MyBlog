@@ -14,21 +14,26 @@ import { useAddPost } from '../../components/hooks/useAddPost';
 import { useEditPost } from '../../components/hooks/useEditPost';
 
 export const AddPost = () => {
-  const isAuth = useSelector(SelectIsAuth);
-  const { item: post, status } = useSelector(state => state.posts.post);
-
   const dispatch = useDispatch();
   const { idPost } = useParams();
+  const inputFileRef = useRef(null);
+
+  const isAuth = useSelector(SelectIsAuth);
+  const { post } = useSelector(state => state.posts);
+
   const [imageUrl, setImageUrl] = useState('');
   const [text, setText] = useState('');
   const [title, setTitle] = useState('');
   const [tags, setTags] = useState('');
-  const inputFileRef = useRef(null);
 
   const handleChangeImage = useHandleChangeImage(setImageUrl);
-  const addPost = useAddPost();
 
+  const addPost = useAddPost();
   const editPost = useEditPost(idPost);
+
+  const isTitleEmpty = title.trim() === '';
+  const isTextEmpty = text.trim() === '';
+  const isFormEmpty = title.trim() === '' || text.trim() === '';
   const isEditing = Boolean(idPost);
 
   const onClickRemoveImage = () => {
@@ -44,21 +49,26 @@ export const AddPost = () => {
     : () => addPost(title, imageUrl, tags, text);
 
   useEffect(() => {
-    if (idPost) {
+    if (isEditing) {
       dispatch(fetchPost(idPost));
-      setTitle(post.title);
-      setText(post.text);
-      setImageUrl(post.imageUrl);
-      setTags(post.tags.join(' '));
     }
-  }, [dispatch, idPost]);
+  }, [dispatch, isEditing, idPost]);
+
+  useEffect(() => {
+    if (post.item) {
+      setTitle(post.item.title);
+      setText(post.item.text);
+      setImageUrl(post.item.imageUrl);
+      setTags(post.item.tags ? post.item.tags.join(' ') : '');
+    }
+  }, [post.item]);
 
   const options = useMemo(
     () => ({
       spellChecker: false,
       maxHeight: '400px',
       autofocus: true,
-      placeholder: 'Введите текст...',
+      placeholder: 'Typing text...',
       status: false,
       autosave: {
         uniqueId: idPost ? idPost : 'new',
@@ -66,23 +76,26 @@ export const AddPost = () => {
         delay: 1000,
       },
     }),
-    [],
+    [idPost],
   );
 
   if (!window.localStorage.getItem('token') && !isAuth) {
     return <Navigate to='/' />;
   }
+  if (post.status === 'loading') {
+    return <div>Loading...</div>;
+  }
 
   return (
     <Paper style={{ padding: 30 }}>
       <Button onClick={() => inputFileRef.current.click()} variant='outlined' size='large'>
-        Загрузить превью
+        Load preview
       </Button>
       <input ref={inputFileRef} type='file' onChange={handleChangeImage} hidden />
       {imageUrl && (
         <>
           <Button variant='contained' color='error' onClick={onClickRemoveImage}>
-            Удалить
+            Delete
           </Button>
           <img className={styles.image} src={`http://localhost:4444/${imageUrl}`} alt='Uploaded' />
         </>
@@ -92,26 +105,33 @@ export const AddPost = () => {
       <TextField
         classes={{ root: styles.title }}
         variant='standard'
-        placeholder='Заголовок статьи...'
+        placeholder='Header post'
         fullWidth
         value={title}
         onChange={e => setTitle(e.target.value)}
+        error={isTitleEmpty}
+        helperText={isTitleEmpty && 'Please enter a title'}
       />
       <TextField
         classes={{ root: styles.tags }}
         variant='standard'
-        placeholder='Тэги'
+        placeholder='Tags'
         fullWidth
         onChange={e => setTags(e.target.value)}
         value={tags}
       />
-      <SimpleMDE className={styles.editor} value={text} onChange={onChange} options={options} />
+      <SimpleMDE
+        className={`${styles.editor} ${isTextEmpty ? styles.emptyEditor : ''}`}
+        value={text}
+        onChange={onChange}
+        options={options}
+      />
       <div className={styles.buttons}>
-        <Button onClick={onSubmit} size='large' variant='contained'>
-          {isEditing ? 'Сохранить' : 'Опубликовать'}
+        <Button onClick={onSubmit} size='large' variant='contained' disabled={isFormEmpty}>
+          {isEditing ? 'Save' : 'Publish'}
         </Button>
         <Link to='/'>
-          <Button size='large'>Отмена</Button>
+          <Button size='large'>Cancel</Button>
         </Link>
       </div>
     </Paper>
