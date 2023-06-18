@@ -48,6 +48,7 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
 app.post('/auth/login', loginValidation, handleValidErrors, UserController.login);
 app.post('/auth/register', registerValidation, handleValidErrors, UserController.register);
 app.get('/auth/me', checkAuth, UserController.getMe);
+app.delete('/auth/me', checkAuth, UserController.remove);
 
 app.get('/posts', PostController.getAll);
 app.get('/posts/tags', PostController.getLastTags);

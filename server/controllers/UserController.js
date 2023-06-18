@@ -92,3 +92,20 @@ export const getMe = async (req, res) => {
     console.log(error);
   }
 };
+
+export const remove = async (req, res) => {
+  try {
+    const id = req.userId;
+    const user = await UserModel.findOneAndRemove({
+      _id: id,
+    });
+    if (!user) {
+      res.json({ message: 'User not found' });
+    } else {
+      res.json(user);
+    }
+  } catch (error) {
+    console.log(error);
+    res.status(505).json({ message: 'Server Error' });
+  }
+};
