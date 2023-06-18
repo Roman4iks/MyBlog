@@ -49,19 +49,24 @@ export const AddPost = () => {
     : () => addPost(title, imageUrl, tags, text);
 
   useEffect(() => {
-    if (isEditing) {
+    if (idPost) {
       dispatch(fetchPost(idPost));
+    } else {
+      setTitle('');
+      setText('');
+      setImageUrl('');
+      setTags('');
     }
-  }, [dispatch, isEditing, idPost]);
+  }, [dispatch, idPost]);
 
   useEffect(() => {
-    if (post.item) {
+    if (post.item && isEditing) {
       setTitle(post.item.title);
       setText(post.item.text);
       setImageUrl(post.item.imageUrl);
       setTags(post.item.tags ? post.item.tags.join(' ') : '');
     }
-  }, [post.item]);
+  }, [post.item, isEditing]);
 
   const options = useMemo(
     () => ({
@@ -82,7 +87,7 @@ export const AddPost = () => {
   if (!window.localStorage.getItem('token') && !isAuth) {
     return <Navigate to='/' />;
   }
-  if (post.status === 'loading') {
+  if (post.status === 'loading' && post.item) {
     return <div>Loading...</div>;
   }
 

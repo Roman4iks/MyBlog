@@ -52,6 +52,7 @@ export const Home = () => {
               commentsCount={3}
               tags={post?.tags}
               isEditable={userData?._id === post?.user?._id}
+              onChangeTag={handleTagChange}
             />
           ))}
         </Grid>

@@ -11,6 +11,7 @@ import { PostSkeleton } from './Skeleton';
 import { Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { fetchDeletePost } from '../../redux/slices/postsSlice';
+import { Button } from '@mui/material';
 
 export const Post = ({
   id,
@@ -25,9 +26,9 @@ export const Post = ({
   isFullPost,
   isLoading,
   isEditable,
+  onChangeTag,
 }) => {
   const dispatch = useDispatch();
-
   const onClickRemove = () => {
     dispatch(fetchDeletePost(id));
   };
@@ -61,13 +62,17 @@ export const Post = ({
           <h2 className={clsx(styles.title, { [styles.titleFull]: isFullPost })}>
             {isFullPost ? title : <Link to={`/posts/${id}`}>{title}</Link>}
           </h2>
-          <ul className={styles.tags}>
-            {tags.map(name => (
-              <li key={name}>
-                <Link to={`/tag/${name}`}>#{name}</Link>
-              </li>
-            ))}
-          </ul>
+          {tags.length === 1 && tags[0] === '' ? (
+            ''
+          ) : (
+            <ul className={styles.tags}>
+              {tags.map(name => (
+                <li key={name}>
+                  <Button onClick={() => onChangeTag(name)}>#{name}</Button>
+                </li>
+              ))}
+            </ul>
+          )}
           {children && <div className={styles.content}>{children}</div>}
           <ul className={styles.postDetails}>
             <li>

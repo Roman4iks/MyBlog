@@ -108,6 +108,6 @@ const postSlice = createSlice({
     },
   },
 });
-export const { setSort, setTag } = postSlice.actions;
+export const { setSort, setTag, setPost } = postSlice.actions;
 
 export const postsReducer = postSlice.reducer;
