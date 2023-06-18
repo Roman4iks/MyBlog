@@ -21,3 +21,4 @@ user/.idea
 ./user/yarn-error.log*
 ./user/.eslintrc.js
 ./user/.vscode/settings.json
+server/uploads
