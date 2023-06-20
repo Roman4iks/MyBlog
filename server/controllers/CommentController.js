@@ -60,11 +60,11 @@ export const create = async (req, res) => {
 
 export const update = async (req, res) => {
   try {
-    const { postId, commentId } = req.params;
+    const { id, commentId } = req.params;
 
     const doc = await CommentModel.findOneAndUpdate(
       {
-        post: postId,
+        post: id,
         _id: commentId,
       },
       {
@@ -91,19 +91,19 @@ export const update = async (req, res) => {
 
 export const remove = async (req, res) => {
   try {
-    const { postId, commentId } = req.params;
+    const { id, commentId } = req.params;
 
-    const doc = await CommentModel.findOneAndRemove({
-      post: postId,
-      _id: commentId,
-    });
-    if (!doc) {
-      return res.status(404).json({
-        message: 'Post not found',
-      });
-    }
+    // const doc = await CommentModel.findOneAndRemove({
+    //   post: id,
+    //   _id: commentId,
+    // });
+    // if (!doc) {
+    //   return res.status(404).json({
+    //     message: 'Post not found',
+    //   });
+    // }
 
-    res.json(doc);
+    res.json({ message: 'success' });
   } catch (error) {
     console.log(error);
     res.status(500).json({

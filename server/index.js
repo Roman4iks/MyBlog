@@ -11,6 +11,7 @@ import {
 import { PostController, UserController, CommentController } from './controllers/index.js';
 import { handleValidErrors, checkAuth } from './utils/index.js';
 import cors from 'cors';
+import { checkCreatorUser, checkCreatorUserComment } from './utils/checkCreatorUser.js';
 
 mongoose
   .connect(
@@ -57,15 +58,22 @@ app.get('/posts/:id', PostController.getOne);
 app.get('/posts/:id/comment', CommentController.get);
 app.post('/posts/:id/comment', checkAuth, commentValidation, CommentController.create);
 app.patch(
-  '/posts/:postId/comment/:commentId',
+  '/posts/:id/comment/:commentId',
   checkAuth,
+  checkCreatorUserComment,
   commentValidation,
   CommentController.update,
 );
-app.delete('/posts/:postId/comment/:commentId', checkAuth, CommentController.remove);
+app.delete(
+  '/posts/:id/comment/:commentId',
+  checkAuth,
+  checkCreatorUserComment,
+  CommentController.remove,
+);
+
 app.post('/posts', checkAuth, postCreateValidation, PostController.create);
-app.delete('/posts/:id', checkAuth, PostController.postDelete);
-app.patch('/posts/:id', checkAuth, postCreateValidation, PostController.update);
+app.delete('/posts/:id', checkAuth, checkCreatorUser, PostController.postDelete);
+app.patch('/posts/:id', checkAuth, checkCreatorUser, postCreateValidation, PostController.update);
 
 app.listen(process.env.PORT, err => {
   if (err) {
