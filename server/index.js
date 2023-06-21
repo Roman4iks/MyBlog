@@ -11,7 +11,13 @@ import {
 import { PostController, UserController, CommentController } from './controllers/index.js';
 import { handleValidErrors, checkAuth } from './utils/index.js';
 import cors from 'cors';
-import { checkCreatorUser, checkCreatorUserComment } from './utils/checkCreatorUser.js';
+import {
+  checkCreatorUser,
+  checkCreatorUserComment,
+  checkUserAdmin,
+} from './utils/checkCreatorUser.js';
+import { checkHasComment, checkHasPost, checkHasUser } from './utils/checkHas.js';
+import { populatePost } from './utils/populate.js';
 
 mongoose
   .connect(
@@ -36,6 +42,7 @@ const storage = multer.diskStorage({
 });
 
 const upload = multer({ storage });
+
 app.use(express.json());
 app.use(cors());
 app.use('/uploads', express.static('uploads'));
@@ -46,20 +53,33 @@ app.post('/upload', checkAuth, upload.single('image'), (req, res) => {
   });
 });
 
-app.post('/auth/login', loginValidation, handleValidErrors, UserController.login);
+app.post('/auth/login', loginValidation, checkHasUser, handleValidErrors, UserController.login);
 app.post('/auth/register', registerValidation, handleValidErrors, UserController.register);
-app.get('/auth/me', checkAuth, UserController.getMe);
-app.delete('/auth/me', checkAuth, UserController.remove);
+app.get('/auth/me', checkAuth, checkHasUser, UserController.getMe);
+app.delete('/auth/me', checkAuth, checkHasUser, UserController.remove);
 
 app.get('/posts', PostController.getAll);
 app.get('/posts/tags', PostController.getLastTags);
-app.get('/posts/:id', PostController.getOne);
+app.get('/posts/:id', checkHasPost, PostController.getOne);
 
-app.get('/posts/:id/comment', CommentController.get);
+app.post('/posts', checkAuth, postCreateValidation, PostController.create);
+app.patch(
+  '/posts/:id',
+  checkAuth,
+  checkHasPost,
+  checkCreatorUser,
+  postCreateValidation,
+  PostController.update,
+);
+app.delete('/posts/:id', checkAuth, checkHasPost, checkUserAdmin, PostController.postDelete);
+
 app.post('/posts/:id/comment', checkAuth, commentValidation, CommentController.create);
+app.get('/posts/:id/comment', CommentController.get);
+
 app.patch(
   '/posts/:id/comment/:commentId',
   checkAuth,
+  checkHasComment,
   checkCreatorUserComment,
   commentValidation,
   CommentController.update,
@@ -67,13 +87,16 @@ app.patch(
 app.delete(
   '/posts/:id/comment/:commentId',
   checkAuth,
-  checkCreatorUserComment,
+  checkHasComment,
+  checkCreatorUser,
+  (req, res, next) => {
+    if (req.isCreator) {
+      return next();
+    }
+    checkCreatorUserComment(req, res, next);
+  },
   CommentController.remove,
 );
-
-app.post('/posts', checkAuth, postCreateValidation, PostController.create);
-app.delete('/posts/:id', checkAuth, checkCreatorUser, PostController.postDelete);
-app.patch('/posts/:id', checkAuth, checkCreatorUser, postCreateValidation, PostController.update);
 
 app.listen(process.env.PORT, err => {
   if (err) {

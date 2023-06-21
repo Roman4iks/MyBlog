@@ -29,28 +29,21 @@ export const register = async (req, res) => {
 
     const { passwordHash, ...userData } = user._doc;
 
-    res.json({
+    return res.json({
       success: true,
       data: { ...userData },
       token,
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ status: 'ERROR' });
+    return res.status(500).json({ error: 'User Register', message: error });
   }
 };
 
 export const login = async (req, res) => {
   try {
-    const user = await UserModel.findOne({ email: req.body.email });
+    const isValidPass = await bcrypt.compare(req.body.password, req.user._doc.passwordHash);
 
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-      });
-    }
-
-    const isValidPass = await bcrypt.compare(req.body.password, user._doc.passwordHash);
     if (!isValidPass) {
       return res.status(404).json({
         message: 'Password incorrect',
@@ -59,13 +52,13 @@ export const login = async (req, res) => {
 
     const token = jwt.sign(
       {
-        _id: user._id,
+        _id: req.user._id,
       },
       process.env.SECRET,
       { expiresIn: '30d' },
     );
 
-    const { passwordHash, ...userData } = user._doc;
+    const { passwordHash, ...userData } = req.user._doc;
 
     res.json({
       ...userData,
@@ -73,39 +66,26 @@ export const login = async (req, res) => {
     });
   } catch (error) {
     console.log(error);
-    res.status(505).json({ message: 'ServerError' });
+    return res.status(505).json({ error: 'User Login', message: error });
   }
 };
 
 export const getMe = async (req, res) => {
   try {
-    const user = await UserModel.findById(req.userId);
-    if (!user) {
-      return res.status(404).json({
-        message: 'User not found',
-      });
-    }
-    const { passwordHash, ...userData } = user._doc;
-    res.json(userData);
+    const { passwordHash, ...userData } = req.user._doc;
+    return res.json(userData);
   } catch (error) {
-    res.status(505).json({ message: 'Server Error' });
     console.log(error);
+    return res.status(505).json({ error: 'User Get', message: error });
   }
 };
 
 export const remove = async (req, res) => {
   try {
-    const id = req.userId;
-    const user = await UserModel.findOneAndRemove({
-      _id: id,
-    });
-    if (!user) {
-      res.json({ message: 'User not found' });
-    } else {
-      res.json(user);
-    }
+    await req.user.deleteOne();
+    return res.json({ message: 'success' });
   } catch (error) {
     console.log(error);
-    res.status(505).json({ message: 'Server Error' });
+    return res.status(505).json({ error: 'User Remove', message: error });
   }
 };

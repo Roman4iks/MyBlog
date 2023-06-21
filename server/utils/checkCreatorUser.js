@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import PostModel from '../models/Post.js';
-import CommentModel from '../models/Comment.js';
 
 export const checkCreatorUser = async (req, res, next) => {
   const token = (req.headers.authorization || '').replace(/Bearer\s?/, '');
@@ -15,15 +14,15 @@ export const checkCreatorUser = async (req, res, next) => {
     const post = await PostModel.findById(req.params.id).populate('user');
 
     if (decoded_user._id === String(post.user._id)) {
+      req.isCreator = true;
       next();
     } else {
-      return res.status(403).json({
-        message: 'You are not the creator',
-      });
+      req.isCreator = false;
+      return next();
     }
   } catch (error) {
     return res.status(403).json({
-      message: 'Invalid token',
+      message: 'Invalid checkCreatorUser',
     });
   }
 };
@@ -54,12 +53,37 @@ export const checkCreatorUserComment = async (req, res, next) => {
       next();
     } else {
       return res.status(403).json({
-        message: 'You are not the creator',
+        message: 'You are not the creator comment',
       });
     }
   } catch (error) {
     return res.status(403).json({
-      message: 'Invalid token',
+      message: 'Invalid checkCreatorUserComment',
+    });
+  }
+};
+
+export const checkUserAdmin = async (req, res, next) => {
+  const token = (req.headers.authorization || '').replace(/Bearer\s?/, '');
+
+  if (!token) {
+    return res.status(403).json({
+      message: 'No access',
+    });
+  }
+
+  try {
+    const decoded_user = jwt.verify(token, process.env.SECRET);
+
+    if (process.env.ID_USERS_ADMIN.includes(decoded_user._id)) {
+      req.isAdmin = true;
+      return next();
+    }
+
+    checkCreatorUser(req, res, next);
+  } catch (error) {
+    return res.status(403).json({
+      message: 'Invalid request',
     });
   }
 };

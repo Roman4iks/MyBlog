@@ -93,15 +93,15 @@ export const remove = async (req, res) => {
   try {
     const { id, commentId } = req.params;
 
-    // const doc = await CommentModel.findOneAndRemove({
-    //   post: id,
-    //   _id: commentId,
-    // });
-    // if (!doc) {
-    //   return res.status(404).json({
-    //     message: 'Post not found',
-    //   });
-    // }
+    const doc = await CommentModel.findOneAndRemove({
+      post: id,
+      _id: commentId,
+    });
+    if (!doc) {
+      return res.status(404).json({
+        message: 'Post not found',
+      });
+    }
 
     res.json({ message: 'success' });
   } catch (error) {

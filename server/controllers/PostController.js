@@ -38,31 +38,16 @@ export const getLastTags = async (req, res) => {
 
 export const getOne = async (req, res) => {
   try {
-    const postId = req.params.id;
+    req.post.viewsCount++;
+    await req.post.save();
 
-    const doc = await PostModel.findOneAndUpdate(
-      {
-        _id: postId,
-      },
-      {
-        $inc: { viewsCount: 1 },
-      },
-      {
-        new: true,
-      },
-    ).populate('user');
-
-    if (!doc) {
-      return res.status(404).json({
-        message: 'Post not found',
-      });
-    }
-
-    res.json(doc);
+    await req.post.populate('user');
+    return res.json(req.post);
   } catch (error) {
     console.log(error);
-    res.status(500).json({
-      message: 'Server Error Posts not send',
+    return res.status(500).json({
+      error: 'Post Get One',
+      message: error,
     });
   }
 };
