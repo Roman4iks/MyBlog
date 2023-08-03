@@ -1,4 +1,5 @@
-import 'dotenv/config';
+import dotenv from 'dotenv';
+dotenv.config();
 import express from 'express';
 import mongoose from 'mongoose';
 import multer from 'multer';
@@ -17,7 +18,6 @@ import {
   checkUserAdmin,
 } from './utils/checkCreatorUser.js';
 import { checkHasComment, checkHasPost, checkHasUser } from './utils/checkHas.js';
-import { populatePost } from './utils/populate.js';
 
 mongoose
   .connect(
